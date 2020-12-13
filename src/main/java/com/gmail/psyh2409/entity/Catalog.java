@@ -2,11 +2,11 @@ package com.gmail.psyh2409.entity;
 
 import javax.persistence.*;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 
 @Entity
 @Table(name = "mycatalog")
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 public class Catalog {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -15,18 +15,9 @@ public class Catalog {
     @Column(name = "name")
     private String name;
 
-//    @Column(name = "parent_catalog")
-//    private Catalog parent;
-
     @Column(name = "mypath")
     private String myPath;
 
-    @ManyToOne
-    @JoinColumn(name = "subcatalog")
-    private Catalog subCatalog;
-
-    @OneToMany(mappedBy = "parent", fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
-    private Set<MyFile> files;
 
     public Catalog() {
         super();
@@ -35,7 +26,6 @@ public class Catalog {
     public Catalog(String name, String myPath) {
         this.name = name;
         this.myPath = myPath;
-        this.files = new HashSet<MyFile>();
     }
 
     public Long getId() {
@@ -54,14 +44,6 @@ public class Catalog {
         this.name = name;
     }
 
-//    public Catalog getParent() {
-//        return parent;
-//    }
-//
-//    public void setParent(Catalog parent) {
-//        this.parent = parent;
-//    }
-//
     public String getMyPath() {
         return myPath;
     }
@@ -70,21 +52,12 @@ public class Catalog {
         this.myPath = myPath;
     }
 
-    public Catalog getSubCatalog() {
-        return subCatalog;
+    @Override
+    public String toString() {
+        return "Catalog{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", myPath='" + myPath + '\'' +
+                '}';
     }
-
-    public void setSubCatalog(Catalog subCatalog) {
-        this.subCatalog = subCatalog;
-    }
-
-    public Set<MyFile> getFiles() {
-        return files;
-    }
-
-    public void setFiles(Set<MyFile> files) {
-        this.files = files;
-    }
-
-
 }

@@ -8,6 +8,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.List;
 
 public class Main {
     //    C:\Users\Psyh\IdeaProjects\FileSysMySQL\src\main\java\com\gmail\psyh2409\Main.java
@@ -16,33 +17,31 @@ public class Main {
         try {
             EntityManager em = manager.getEmf().createEntityManager();
             Catalog catalog = new Catalog("grandCatalog", "");
-            Catalog subCat = new Catalog("catalog", "grandCatalog");
-            File file = new File("text.txt");
-            if (!file.exists()) {
-                try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))) {
-                    file.createNewFile();
-                    bw.write("Hello DataBase!");
-                } catch (IOException ioException) {
-                    ioException.printStackTrace();
-                }
+            manager.createCatalog(catalog.getName(), catalog.getMyPath(), null);
+            manager.createCatalog("myfamily", catalog.getName(), null);
+            manager.createCatalog("vitiafamily", catalog.getName(), null);
+            manager.createCatalog("sergiiko", catalog.getName()+".myfamily", null);
+            File file = manager.createAndWriteInNewFile("text.txt", "Hello DataBase!");
+            manager.createCatalog("text.txt", catalog.getName() + ".myfamily.sergiiko", file);
+
+            List<Catalog> catalogLis = manager.dir("");
+            for (Catalog c: catalogLis) {
+                System.out.println(c.getName());
             }
-            MyFile myFile = new MyFile("text.txt", subCat, "grandCatalog.catalog");
-            myFile.setContent(file);
-            subCat.getFiles().add(myFile);
-            em.getTransaction().begin();
-            em.persist(subCat);
-            em.getTransaction().commit();
-
-            catalog.setSubCatalog(subCat);
-
-            em.getTransaction().begin();
-            em.persist(catalog);
-            em.getTransaction().commit();
-            em.close();
-
-            Long catalogId = manager.createCatalog("MyFamily", "catalog");
-            System.out.println(catalogId);
-
+            List<Catalog> catalogList = manager.dir("grandCatalog");
+            for (Catalog c: catalogList) {
+                System.out.println(c.getName());
+            }
+            List<Catalog> catalogs = manager.ls("grandCatalog");
+            for (Catalog c: catalogs) {
+                System.out.println(c.getMyPath() +"."+ c.getName());
+            }
+            System.out.println(
+                    manager.findByPathName(
+                            "grandCatalog.myfamily.sergiiko", "text.txt"));
+            Catalog catalog1 = manager.findByPathName(
+                    "grandCatalog.myfamily.sergiiko", "text.txt");
+            File file1 = manager.readFile((MyFile) catalog1);
         } finally {
             manager.emfClose();
         }
