@@ -1,8 +1,7 @@
 package com.gmail.psyh2409.entity;
 
 import javax.persistence.*;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Objects;
 
 @Entity
 @Table(name = "mycatalog")
@@ -50,6 +49,21 @@ public class Catalog {
 
     public void setMyPath(String myPath) {
         this.myPath = myPath;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Catalog catalog = (Catalog) o;
+        return Objects.equals(id, catalog.id) &&
+                Objects.equals(name, catalog.name) &&
+                Objects.equals(myPath, catalog.myPath);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, myPath);
     }
 
     @Override

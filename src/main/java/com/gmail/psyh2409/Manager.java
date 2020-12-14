@@ -11,7 +11,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class Manager {
@@ -20,7 +19,7 @@ public class Manager {
 
     public Manager() {
         super();
-        emf = Persistence.createEntityManagerFactory("JPATest");
+        emf = Persistence.createEntityManagerFactory("FSinDB");
     }
 
     public EntityManagerFactory getEmf() {
@@ -41,7 +40,9 @@ public class Manager {
             em.persist(catalog);
             em.getTransaction().commit();
         } catch (Exception e) {
-            em.getTransaction().rollback();
+            if (em != null) {
+                em.getTransaction().rollback();
+            }
             e.printStackTrace();
         } finally {
             if (em != null) {
@@ -55,21 +56,9 @@ public class Manager {
         emf.close();
     }
 
-
-//    private Catalog getParentFromPath(String myPath) {
-//        String catName = null;
-//        if (myPath.contains(".")) {
-//            String[] temp = myPath.split("\\.");
-//            catName = temp[temp.length - 1];
-//        } else {
-//            catName = myPath;
-//        }
-//        return findByPathName(catName);
-//    }
-
     public Catalog findByPathName(String catPath, String catName) {
         EntityManager em = null;
-        Catalog result = null;
+        Catalog result;
         try {
             em = emf.createEntityManager();
             String query = "select x from Catalog x where x.myPath=:path and x.name=:name";
@@ -99,7 +88,7 @@ public class Manager {
     }
 
     public List<Catalog> dir(String dirName){
-        List<Catalog> catalogs = new ArrayList<>();
+        List<Catalog> catalogs;
         if (dirName == null) {
             dirName = "";
         }
@@ -119,7 +108,7 @@ public class Manager {
     }
 
     public List<Catalog> ls(String dirName){
-        List<Catalog> catalogs = new ArrayList<>();
+        List<Catalog> catalogs;
         if (dirName == null) {
             dirName = "";
         }
@@ -146,5 +135,53 @@ public class Manager {
             ioException.printStackTrace();
         }
         return file;
+    }
+
+    public boolean deleteByPathName(String path, String name){
+        return deleteById(findByPathName(path, name).getId());
+    }
+
+    public boolean deleteById(Long id) {
+        Catalog catalog = getById(id);
+        EntityManager em = null;
+        try {
+            em = emf.createEntityManager();
+            String query = "delete from Catalog x where x.myPath like :pathname";
+            Query emQuery = em.createQuery(query);
+            emQuery.setParameter("pathname", catalog.getMyPath()+"."+catalog.getName() + "%");
+            String query1 = "delete from Catalog x where x.id like :id";
+            Query emQuery1 = em.createQuery(query1);
+            emQuery1.setParameter("id", catalog.getId());
+            em.getTransaction().begin();
+            emQuery.executeUpdate();
+            emQuery1.executeUpdate();
+            em.getTransaction().commit();
+            return true;
+        }catch (Exception e) {
+            em.getTransaction().rollback();
+            e.printStackTrace();
+        }finally {
+            if (em != null) {
+                em.close();
+            }
+        }
+        return false;
+    }
+
+    public Catalog getById(Long id) {
+        EntityManager em = null;
+        Catalog result;
+        try {
+            em = emf.createEntityManager();
+            String query = "select x from Catalog x where x.id=:id";
+            Query emQuery = em.createQuery(query);
+            emQuery.setParameter("id", id);
+            result = (Catalog) emQuery.getSingleResult();
+        } finally {
+            if (em != null) {
+                em.close();
+            }
+        }
+        return result;
     }
 }

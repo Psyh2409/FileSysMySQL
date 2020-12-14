@@ -2,6 +2,7 @@ package com.gmail.psyh2409.entity;
 
 import javax.persistence.*;
 import java.io.File;
+import java.util.Objects;
 
 @Entity
 public class MyFile extends Catalog {
@@ -27,11 +28,23 @@ public class MyFile extends Catalog {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        MyFile myFile = (MyFile) o;
+        return Objects.equals(content, myFile.content);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), content);
+    }
+
+    @Override
     public String toString() {
         return "MyFile{" +
-                "id=" + getId()+
-                ", name='" + getName() + '\'' +
-                ", path='" + getMyPath() + '\'' +
+                "content=" + content +
                 '}';
     }
 }
