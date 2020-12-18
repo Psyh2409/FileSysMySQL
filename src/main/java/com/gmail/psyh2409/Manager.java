@@ -193,23 +193,23 @@ public class Manager {
         if (path == null) path = "";
         if (f != null) {
             if (f.exists()) {
-                    if (f.isDirectory()) {
-                        createCatalog(f.getName(), path, null);
-                        if (f.listFiles().length > 0) {
-                            for (File ff : f.listFiles()) {
-                                Catalog catalog = findByPathName(path, f.getName());
-                                addAllFromFileToDB(ff,
-                                        catalog.getMyPath().isEmpty()
-                                                ?catalog.getMyPath().concat(catalog.getName())
-                                                :catalog.getMyPath().concat(".").concat(catalog.getName()));
-                            }
+                if (f.isDirectory()) {
+                    createCatalog(f.getName(), path, null);
+                    if (f.listFiles().length > 0) {
+                        for (File ff : f.listFiles()) {
+                            Catalog catalog = findByPathName(path, f.getName());
+                            addAllFromFileToDB(ff,
+                                    catalog.getMyPath().isEmpty()
+                                            ? catalog.getMyPath().concat(catalog.getName())
+                                            : catalog.getMyPath().concat(".").concat(catalog.getName()));
                         }
-                    } else {
-                        createCatalog(f.getName(), path, f);
                     }
+                } else {
+                    createCatalog(f.getName(), path, f);
                 }
             }
         }
     }
+}
 
 
