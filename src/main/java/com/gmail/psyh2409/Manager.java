@@ -74,7 +74,7 @@ public class Manager {
         return result;
     }
 
-    public File createAndWriteInNewFile(String name, String content ) {
+    public File createAndWriteInNewFile(String name, String content) {
         File file = new File(name);
         if (!file.exists()) {
             try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))) {
@@ -87,19 +87,19 @@ public class Manager {
         return file;
     }
 
-    public List<Catalog> dir(String dirName){
+    public List<Catalog> dir(String dirName) {
         List<Catalog> catalogs;
         if (dirName == null) {
             dirName = "";
         }
         EntityManager em = null;
-        try{
+        try {
             em = emf.createEntityManager();
             String query = "select x from Catalog x where x.myPath=:parampampath";
             Query emQuery = em.createQuery(query);
             emQuery.setParameter("parampampath", dirName);
             catalogs = (List<Catalog>) emQuery.getResultList();
-        }finally {
+        } finally {
             if (em != null) {
                 em.close();
             }
@@ -107,19 +107,19 @@ public class Manager {
         return catalogs;
     }
 
-    public List<Catalog> ls(String dirName){
+    public List<Catalog> ls(String dirName) {
         List<Catalog> catalogs;
         if (dirName == null) {
             dirName = "";
         }
         EntityManager em = null;
-        try{
+        try {
             em = emf.createEntityManager();
             String query = "select x from Catalog x where x.myPath like :parampampath";
             Query emQuery = em.createQuery(query);
-            emQuery.setParameter("parampampath", dirName+"%");
+            emQuery.setParameter("parampampath", dirName + "%");
             catalogs = (List<Catalog>) emQuery.getResultList();
-        }finally {
+        } finally {
             if (em != null) {
                 em.close();
             }
@@ -137,7 +137,7 @@ public class Manager {
         return file;
     }
 
-    public boolean deleteByPathName(String path, String name){
+    public boolean deleteByPathName(String path, String name) {
         return deleteById(findByPathName(path, name).getId());
     }
 
@@ -148,7 +148,7 @@ public class Manager {
             em = emf.createEntityManager();
             String query = "delete from Catalog x where x.myPath like :pathname";
             Query emQuery = em.createQuery(query);
-            emQuery.setParameter("pathname", catalog.getMyPath()+"."+catalog.getName() + "%");
+            emQuery.setParameter("pathname", catalog.getMyPath() + "." + catalog.getName() + "%");
             String query1 = "delete from Catalog x where x.id like :id";
             Query emQuery1 = em.createQuery(query1);
             emQuery1.setParameter("id", catalog.getId());
@@ -157,10 +157,10 @@ public class Manager {
             emQuery1.executeUpdate();
             em.getTransaction().commit();
             return true;
-        }catch (Exception e) {
+        } catch (Exception e) {
             em.getTransaction().rollback();
             e.printStackTrace();
-        }finally {
+        } finally {
             if (em != null) {
                 em.close();
             }
@@ -184,4 +184,44 @@ public class Manager {
         }
         return result;
     }
-}
+
+    /*Доп домашка:
+Допилить домашку про файловую систему так,
+чтобы можно было выбрать на реальном диске каталог
+и перенести его в вашу виртуальную фс в базе*/
+    public void addAllFromFileToDB(File f, String path) {
+        if (f != null) {
+            if (f.exists()) {
+//                    String fName = f.getName();
+//                    String root = "";
+//                    String separ = File.separator;
+//                    String fParent;
+//                    if (path == null) {
+//                        fParent = "";
+//                        root = f.getName();
+//                    } else {
+//                        String sParent = f.getParent();
+//                        int indName = sParent.indexOf(root); //fName must be constant!!!
+//                        String sbsPar = sParent.substring(indName);
+//                        fParent = sbsPar.replaceAll(File.separator, ".");
+//                    }
+                    if (f.isDirectory()) {
+                        createCatalog(f.getName(), path==null?"":path, null);
+                        if (f.listFiles().length > 0) {
+                            for (File ff : f.listFiles()) {
+                                Catalog catalog = findByPathName(path==null?"":path, f.getName());
+                                addAllFromFileToDB(ff,
+                                        catalog.getMyPath().isEmpty()
+                                                ?catalog.getMyPath().concat(catalog.getName())
+                                                :catalog.getMyPath().concat(".").concat(catalog.getName()));
+                            }
+                        }
+                    } else {
+                        createCatalog(f.getName(), path==null?"":path, f);
+                    }
+                }
+            }
+        }
+    }
+
+

@@ -39,7 +39,10 @@ public class Main {
                     "grandCatalog.myfamily.sergiiko", "text.txt");
             File file1 = manager.readFile((MyFile) catalog1);
             //manager.deleteById(4L);
-            manager.deleteByPathName("grandCatalog.myfamily", "sergiiko");
+//            manager.deleteByPathName("grandCatalog.myfamily", "sergiiko");
+
+            manager.addAllFromFileToDB(new File("C:\\Users\\Psyh\\IdeaProjects\\FileSysMySQL\\src"), null);
+
         } finally {
             manager.emfClose();
         }
