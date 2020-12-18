@@ -190,13 +190,14 @@ public class Manager {
 чтобы можно было выбрать на реальном диске каталог
 и перенести его в вашу виртуальную фс в базе*/
     public void addAllFromFileToDB(File f, String path) {
+        if (path == null) path = "";
         if (f != null) {
             if (f.exists()) {
                     if (f.isDirectory()) {
-                        createCatalog(f.getName(), path==null?"":path, null);
+                        createCatalog(f.getName(), path, null);
                         if (f.listFiles().length > 0) {
                             for (File ff : f.listFiles()) {
-                                Catalog catalog = findByPathName(path==null?"":path, f.getName());
+                                Catalog catalog = findByPathName(path, f.getName());
                                 addAllFromFileToDB(ff,
                                         catalog.getMyPath().isEmpty()
                                                 ?catalog.getMyPath().concat(catalog.getName())
@@ -204,7 +205,7 @@ public class Manager {
                             }
                         }
                     } else {
-                        createCatalog(f.getName(), path==null?"":path, f);
+                        createCatalog(f.getName(), path, f);
                     }
                 }
             }
