@@ -192,19 +192,6 @@ public class Manager {
     public void addAllFromFileToDB(File f, String path) {
         if (f != null) {
             if (f.exists()) {
-//                    String fName = f.getName();
-//                    String root = "";
-//                    String separ = File.separator;
-//                    String fParent;
-//                    if (path == null) {
-//                        fParent = "";
-//                        root = f.getName();
-//                    } else {
-//                        String sParent = f.getParent();
-//                        int indName = sParent.indexOf(root); //fName must be constant!!!
-//                        String sbsPar = sParent.substring(indName);
-//                        fParent = sbsPar.replaceAll(File.separator, ".");
-//                    }
                     if (f.isDirectory()) {
                         createCatalog(f.getName(), path==null?"":path, null);
                         if (f.listFiles().length > 0) {
